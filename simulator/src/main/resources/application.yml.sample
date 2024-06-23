@@ -1,0 +1,10 @@
+server:
+    port: 10300
+
+spring:
+  application:
+    name: rest_simulator
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/rest_simulator
+    username: rest
+    password: secret
