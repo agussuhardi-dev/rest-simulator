@@ -7,18 +7,16 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-public class HttpResponseQueryVO implements Serializable {
+public class HttpQueryVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String id;
 
-    private String header;
+    private String pathUrl;
 
-    private String body;
+    private String requestHeader;
 
-    private Integer httpStatusCode;
-
-    private BigDecimal responseTimeInMillis;
+    private String requestBody;
 
     private Boolean enabled;
 
@@ -28,6 +26,8 @@ public class HttpResponseQueryVO implements Serializable {
 
     private Boolean deleted;
 
-    private String httpRequestId;
+    private String method;
+
+    private String queryParam;
 
 }

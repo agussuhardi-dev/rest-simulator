@@ -7,12 +7,12 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div th:replace="~{fragment/menu::menu('/http/requests')}"></div>
+        <div th:replace="~{fragment/menu::menu('/http')}"></div>
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h2>Http Requests</h2>
-                <a class="btn btn-sm btn-icon btn-primary me-1" href="/http/requests/form"><i
+                <a class="btn btn-sm btn-icon btn-primary me-1" href="/http/form"><i
                         class="bi bi-plus-square-dotted me-1"></i>Add</a>
             </div>
 
@@ -28,8 +28,8 @@
 <div th:replace="~{fragment/body::js}"></div>
 <script th:inline="javascript">
 
-    let apiUrl = '/web/api/v1/http/requests'
-    let webUrl = '/http/requests'
+    let apiUrl = '/web/api/v1/http'
+    let webUrl = '/http'
 
     $(document).ready(function () {
         listBaseTable()
@@ -55,7 +55,6 @@
                         $.get(apiUrl, params, function (res) {
                             // map your server's response to the DataTables format and pass it to
                             // DataTables' callback
-                            console.log(res.data.content)
                             callback({
                                 recordsTotal: res.data.page.totalElements,
                                 recordsFiltered: res.data.page.totalElements,
@@ -71,28 +70,13 @@
                                 return meta.row + meta.settings._iDisplayStart + 1;
                             }
                         },
-                        {title: 'URL', data: 'pathUrl'},
-                        {title: 'Method', data: 'method'},
-                        {title: 'Enabled', data: 'enabled'},
+                        {title: 'Request Method', data: 'requestMethod'},
+                        {title: 'Request URL', data: 'requestPathUrl'},
                         {
-                            title: 'Query Params',
-                            data: 'queryParam',
+                            title: 'Response Body',
+                            data: 'response',
                             render: function (data, type, row, meta) {
-                                return `<pre>${JSON.stringify(JSON.parse(data), null, 2)}</pre>`
-                            }
-                        },
-                        {
-                            title: 'Headers',
-                            data: 'header',
-                            render: function (data, type, row, meta) {
-                                return `<pre>${JSON.stringify(JSON.parse(data), null, 2)}</pre>`
-                            }
-                        },
-                        {
-                            title: 'Body',
-                            data: 'body',
-                            render: function (data, type, row, meta) {
-                                return `<pre>${JSON.stringify(JSON.parse(data), null, 2)}</pre>`
+                                return `<pre>${JSON.stringify(JSON.parse(data.body), null, 2)}</pre>`
                             }
                         },
                         {
@@ -100,8 +84,7 @@
                             render: function (data, type, row, meta) {
                                 return `
                                         <div class="d-flex flex-row">
-                                        <a href="${webUrl}/form/${data}" class="btn btn-sm btn-icon btn-primary me-1 "><i class="bi bi-pencil"></i></a>
-                                        <a href="#" class="btn btn-sm btn-icon btn-danger me-1"><i class="bi bi-trash"></i></a>
+<!--                                        <a href="#" class="btn btn-sm btn-icon btn-danger me-1"><i class="bi bi-trash"></i></a>-->
                                         <a href="${webUrl}/form?id=${data}" class="btn btn-sm btn-icon btn-info me-1"><i class="bi bi-eye"></i></a>
                                         </div>
                                         `
@@ -112,7 +95,7 @@
                     ],
                     columnDefs: [
                         {width: "50px", targets: [0]},
-                        {width: "50px", targets: [7]},
+                        {width: "50px", targets: [4]},
                         {
                             "defaultContent": "-",
                             "targets": "_all",
