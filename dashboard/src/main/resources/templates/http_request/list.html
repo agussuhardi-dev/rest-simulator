@@ -10,7 +10,12 @@
         <div th:replace="~{fragment/menu::menu('/http/requests')}"></div>
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-            <h2>Http Requests</h2>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h2>Http Requests</h2>
+                <a class="btn btn-sm btn-icon btn-primary me-1" href="/http/requests/add"><i
+                        class="bi bi-plus-square-dotted me-1"></i>Add</a>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-striped table-row-bordered gy-5 gs-7" id="baseTable">
                 </table>
@@ -68,6 +73,7 @@
                         },
                         {title: 'URL', data: 'pathUrl'},
                         {title: 'Method', data: 'method'},
+                        {title: 'Enabled', data: 'enabled'},
                         {
                             title: 'Query Params',
                             data: 'queryParam',
@@ -77,23 +83,36 @@
                         },
                         {
                             title: 'Headers',
-                            data: 'requestHeader',
+                            data: 'header',
                             render: function (data, type, row, meta) {
                                 return `<pre>${JSON.stringify(JSON.parse(data), null, 2)}</pre>`
                             }
                         },
                         {
                             title: 'Body',
-                            data: 'requestBody',
+                            data: 'body',
                             render: function (data, type, row, meta) {
                                 return `<pre>${JSON.stringify(JSON.parse(data), null, 2)}</pre>`
                             }
                         },
-                        {title: 'Enabled', data: 'enabled'}
+                        {
+                            title: 'Action', data: 'id',
+                            render: function (data, type, row, meta) {
+                                return `
+                                        <div class="d-flex flex-row">
+                                        <a href="${webUrl}/form/${data}" class="btn btn-sm btn-icon btn-primary me-1 "><i class="bi bi-pencil"></i></a>
+                                        <a href="#" class="btn btn-sm btn-icon btn-danger me-1"><i class="bi bi-trash"></i></a>
+                                        <a href="#" class="btn btn-sm btn-icon btn-info me-1"><i class="bi bi-eye"></i></a>
+                                        </div>
+                                        `
+                            },
+                        }
+
 
                     ],
                     columnDefs: [
                         {width: "50px", targets: [0]},
+                        {width: "50px", targets: [7]},
                         {
                             "defaultContent": "-",
                             "targets": "_all",

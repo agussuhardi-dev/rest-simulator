@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Data
 public class HttpRequestDTO implements Serializable {
@@ -15,20 +14,22 @@ public class HttpRequestDTO implements Serializable {
 
     private String pathUrl;
 
-    private String requestHeader;
+    private String header;
 
-    private String requestBody;
+    private String body;
 
     private Boolean enabled;
 
-    private BigDecimal createdAt;
+    private Long createdAt;
 
-    private BigDecimal updatedAt;
+    private Long updatedAt;
 
     private Boolean deleted;
 
     private String method;
 
     private String queryParam;
+
+    private HttpResponseDTO response;
 
 }

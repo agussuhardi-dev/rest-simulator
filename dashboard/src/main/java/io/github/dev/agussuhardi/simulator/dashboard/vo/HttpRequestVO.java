@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 
 @Data
@@ -13,33 +12,24 @@ public class HttpRequestVO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @NotNull(message = "id can not null")
-    private String id;
-
     @NotNull(message = "pathUrl can not null")
     private String pathUrl;
 
-    @NotNull(message = "requestHeader can not null")
-    private String requestHeader;
+    @NotNull(message = "header can not null")
+    private String header;
 
-    @NotNull(message = "requestBody can not null")
-    private String requestBody;
+    @NotNull(message = "body can not null")
+    private String body;
 
-    @NotNull(message = "enabled can not null")
     private Boolean enabled;
 
-    @NotNull(message = "createdAt can not null")
-    private BigDecimal createdAt;
-
-    private BigDecimal updatedAt;
-
-    @NotNull(message = "deleted can not null")
-    private Boolean deleted;
-
-    @NotNull(message = "method can not null")
     private String method;
 
     @NotNull(message = "queryParam can not null")
     private String queryParam;
 
+    public Boolean getEnabled() {
+        if (enabled == null) return true;
+        return enabled;
+    }
 }

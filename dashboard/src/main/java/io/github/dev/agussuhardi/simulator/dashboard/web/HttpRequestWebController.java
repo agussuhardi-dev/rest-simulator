@@ -1,12 +1,11 @@
 package io.github.dev.agussuhardi.simulator.dashboard.web;
 
 import io.github.dev.agussuhardi.simulator.dashboard.config.GlobalApiResponse;
-import io.github.dev.agussuhardi.simulator.dashboard.dto.HttpHistoriesDTO;
 import io.github.dev.agussuhardi.simulator.dashboard.dto.HttpRequestDTO;
-import io.github.dev.agussuhardi.simulator.dashboard.service.impl.HttpHistoriesService;
 import io.github.dev.agussuhardi.simulator.dashboard.service.impl.HttpRequestService;
-import io.github.dev.agussuhardi.simulator.dashboard.vo.HttpHistoriesQueryVO;
 import io.github.dev.agussuhardi.simulator.dashboard.vo.HttpRequestQueryVO;
+import io.github.dev.agussuhardi.simulator.dashboard.vo.HttpRequestVO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,9 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author agussuhardii
@@ -38,4 +35,9 @@ public class HttpRequestWebController {
         return new GlobalApiResponse<>(httpRequestService.query(vo, pageable), HttpStatus.OK);
     }
 
+    @PostMapping
+    public ResponseEntity<Object> add(@RequestBody @Valid HttpRequestVO vo) {
+        httpRequestService.add(vo);
+        return new GlobalApiResponse<>(HttpStatus.CREATED);
+    }
 }

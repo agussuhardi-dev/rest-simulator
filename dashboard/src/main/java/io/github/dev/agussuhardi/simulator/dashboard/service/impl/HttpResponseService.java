@@ -1,5 +1,6 @@
 package io.github.dev.agussuhardi.simulator.dashboard.service.impl;
 
+import io.github.dev.agussuhardi.simulator.dashboard.dto.HttpRequestDTO;
 import io.github.dev.agussuhardi.simulator.dashboard.dto.HttpResponseDTO;
 import io.github.dev.agussuhardi.simulator.dashboard.entity.HttpResponse;
 import io.github.dev.agussuhardi.simulator.dashboard.repository.HttpResponseRepository;
@@ -49,6 +50,10 @@ public class HttpResponseService {
     private HttpResponseDTO toDTO(HttpResponse original) {
         HttpResponseDTO bean = new HttpResponseDTO();
         BeanUtils.copyProperties(original, bean);
+
+        var requestDTO = new HttpRequestDTO();
+        BeanUtils.copyProperties(original.getHttpRequest(), requestDTO);
+        bean.setRequest(requestDTO);
         return bean;
     }
 

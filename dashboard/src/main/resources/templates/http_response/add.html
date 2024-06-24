@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{fragment/head::head}"></div>
+
+<body>
+<div th:replace="~{fragment/body::header}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{fragment/menu::menu('/http/responses')}"></div>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h2>Add response</h2>
+            </div>
+
+            <form class="form" id="form" onsubmit="return false">
+
+                <div class="mb-3">
+                    <label class="form-label" for="header">Header</label>
+                    <textarea class="form-control" id="header" name="header" required rows="3"></textarea>
+                    <div class="form-text">mandatory header, json format with array value</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="httpStatusCode">Status Code</label>
+                    <input class="form-control" id="httpStatusCode" name="httpStatusCode" required type="text">
+                    <div class="form-text">Response Status code header</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="responseTimeInMillis">Response time</label>
+                    <input class="form-control" id="responseTimeInMillis" name="responseTimeInMillis" required
+                           type="text">
+                    <div class="form-text">Response time</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="body">Body</label>
+                    <textarea class="form-control" id="body" name="body" required rows="3"></textarea>
+                    <div class="form-text">mandatory body response</div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input class="form-check-input" id="enabled" name="enabled" type="checkbox">
+                    <label class="form-check-label" for="enabled">Enabled</label>
+                </div>
+                <button class="btn btn-primary" type="submit">Add</button>
+            </form>
+
+
+        </main>
+    </div>
+</div>
+
+
+<div th:replace="~{fragment/body::js}"></div>
+<script th:inline="javascript">
+
+    let apiUrl = '/web/api/v1/http/responses'
+    let webUrl = '/http/responses'
+
+    $(document).on('submit', '#form', function (e) {
+        let obj = JSON.parse(serialize_form(this));
+
+
+        for (const [key, value] of Object.entries(obj)) {
+            if (value === 'on')
+                obj[key] = true;
+        }
+
+        $.ajax({
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            type: 'POST',
+            url: apiUrl,
+            dataType: 'json',
+            data: JSON.stringify(obj),
+            success: function (response) {
+                console.log(response)
+                // window.location.href = webUrl
+            },
+            error: function (response, status, error) {
+                console.log(resquest.responseText)
+                // alert(JSON.parse(response.responseText).message);
+            }
+        });
+    })
+
+</script>
+
+</body>
+</html>

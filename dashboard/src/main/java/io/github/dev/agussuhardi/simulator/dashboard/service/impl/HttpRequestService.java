@@ -1,13 +1,14 @@
 package io.github.dev.agussuhardi.simulator.dashboard.service.impl;
 
 import io.github.dev.agussuhardi.simulator.dashboard.dto.HttpRequestDTO;
+import io.github.dev.agussuhardi.simulator.dashboard.dto.HttpResponseDTO;
 import io.github.dev.agussuhardi.simulator.dashboard.entity.HttpRequest;
 import io.github.dev.agussuhardi.simulator.dashboard.repository.HttpRequestRepository;
 import io.github.dev.agussuhardi.simulator.dashboard.vo.HttpRequestQueryVO;
 import io.github.dev.agussuhardi.simulator.dashboard.vo.HttpRequestUpdateVO;
 import io.github.dev.agussuhardi.simulator.dashboard.vo.HttpRequestVO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,16 +16,15 @@ import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
 
 @Service
+@RequiredArgsConstructor
 public class HttpRequestService {
 
-    @Autowired
-    private HttpRequestRepository httpRequestRepository;
+    private final HttpRequestRepository httpRequestRepository;
 
-    public String save(HttpRequestVO vO) {
+    public void add(HttpRequestVO vO) {
         HttpRequest bean = new HttpRequest();
         BeanUtils.copyProperties(vO, bean);
-        bean = httpRequestRepository.save(bean);
-        return bean.getId();
+        httpRequestRepository.save(bean);
     }
 
     public void delete(String id) {
@@ -49,6 +49,13 @@ public class HttpRequestService {
     private HttpRequestDTO toDTO(HttpRequest original) {
         HttpRequestDTO bean = new HttpRequestDTO();
         BeanUtils.copyProperties(original, bean);
+
+        if (original.getHttpResponse() != null) {
+            var responseDTO = new HttpResponseDTO();
+            BeanUtils.copyProperties(original.getHttpResponse(), responseDTO);
+            bean.setResponse(responseDTO);
+        }
+
         return bean;
     }
 

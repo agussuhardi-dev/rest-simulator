@@ -29,6 +29,6 @@ public class HttpResponseDTO implements Serializable {
 
     private Boolean deleted;
 
-    private String httpRequestId;
+    private HttpRequestDTO request;
 
 }
