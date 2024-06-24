@@ -13,12 +13,9 @@ public class HttpRequestDTO implements Serializable {
     private String id;
 
     private String pathUrl;
-
     private String header;
-
+    private String queryParam;
     private String body;
-
-    private Boolean enabled;
 
     private Long createdAt;
 
@@ -28,7 +25,6 @@ public class HttpRequestDTO implements Serializable {
 
     private String method;
 
-    private String queryParam;
 
     private HttpResponseDTO response;
 

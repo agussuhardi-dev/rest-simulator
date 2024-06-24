@@ -40,4 +40,9 @@ public class HttpRequestWebController {
         httpRequestService.add(vo);
         return new GlobalApiResponse<>(HttpStatus.CREATED);
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity<Object> getById(@PathVariable String id) {
+        return new GlobalApiResponse<>(httpRequestService.getById(id), HttpStatus.CREATED);
+    }
 }

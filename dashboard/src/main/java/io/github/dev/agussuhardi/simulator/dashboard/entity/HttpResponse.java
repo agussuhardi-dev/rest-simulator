@@ -38,9 +38,6 @@ public class HttpResponse implements Serializable {
     @Column(name = "response_time_in_millis", nullable = false)
     private BigDecimal responseTimeInMillis;
 
-    @Column(name = "enabled", nullable = false)
-    private Boolean enabled;
-
     @Column(name = "created_at", nullable = false)
     private BigDecimal createdAt;
 

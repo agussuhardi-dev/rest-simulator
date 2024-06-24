@@ -39,9 +39,6 @@ public class HttpRequest implements Serializable {
     @Type(JsonType.class)
     private String body;
 
-    @Column(name = "enabled", nullable = false)
-    private Boolean enabled;
-
     @Column(name = "created_at", nullable = false)
     private Long createdAt;
 

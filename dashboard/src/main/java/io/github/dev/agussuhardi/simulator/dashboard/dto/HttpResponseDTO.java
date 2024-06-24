@@ -21,14 +21,6 @@ public class HttpResponseDTO implements Serializable {
 
     private BigDecimal responseTimeInMillis;
 
-    private Boolean enabled;
-
-    private BigDecimal createdAt;
-
-    private BigDecimal updatedAt;
-
-    private Boolean deleted;
-
     private HttpRequestDTO request;
 
 }
