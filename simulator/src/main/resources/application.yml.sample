@@ -8,3 +8,9 @@ spring:
     url: r2dbc:postgresql://localhost:5432/rest_simulator
     username: rest
     password: secret
+
+
+logging:
+  level:
+    io.r2dbc.postgresql.QUERY: DEBUG # for queries
+    io.r2dbc.postgresql.PARAM: DEBUG # for parameters

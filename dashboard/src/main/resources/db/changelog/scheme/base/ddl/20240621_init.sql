@@ -18,14 +18,14 @@ create table http
     deleted                   boolean      not null
 );
 
-create table http_histories
+create table http_history
 (
-    id                  char(36) not null
+    id                  BIGSERIAL not null
         primary key,
     request_path_url    varchar(255),
     request_method      varchar(20),
-    request_header      jsonb,
-    request_body        jsonb,
-    request_query_param jsonb,
-    created_at          numeric  not null
+    request_header      text,
+    request_body        text,
+    request_query_param text,
+    created_at          numeric   not null
 );

@@ -2,6 +2,8 @@ package io.github.dev.agussuhardi.simulator.rest.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.dev.agussuhardi.simulator.rest.entity.HttpHistory;
+import io.github.dev.agussuhardi.simulator.rest.repository.HttpHistoryRepository;
 import io.github.dev.agussuhardi.simulator.rest.repository.HttpRepository;
 import io.github.dev.agussuhardi.simulator.rest.util.ObjectMapperUtil;
 import io.micrometer.common.lang.NonNullApi;
@@ -18,6 +20,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -39,6 +42,7 @@ import static io.github.dev.agussuhardi.simulator.rest.util.ObjectMapperUtil.get
 public class ModifyResponseFilter implements WebFilter {
 
     private final HttpRepository httpRepository;
+    private final HttpHistoryRepository httpHistoryRepository;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -50,6 +54,17 @@ public class ModifyResponseFilter implements WebFilter {
                     byte[] bytes = new byte[dataBuffer.readableByteCount()];
                     dataBuffer.read(bytes);
                     String body = new String(bytes, StandardCharsets.UTF_8);
+
+
+                    var history = new HttpHistory();
+                    history.setRequestPathUrl(request.getPath().toString());
+                    history.setRequestMethod(request.getMethod().name());
+                    history.setRequestQueryParamJSONB(ObjectMapperUtil.toJson(request.getQueryParams()));
+                    history.setRequestHeaderJSONB(ObjectMapperUtil.toJson(request.getHeaders()));
+                    history.setRequestBodyJSONB(body);
+                    history.setCreatedAt(System.currentTimeMillis());
+                    httpHistoryRepository.save(history).subscribe();
+
 
                     var httpPathUrl = request.getPath().toString();
                     var httpMethod = request.getMethod().name();
