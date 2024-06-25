@@ -20,15 +20,12 @@ create table http
 
 create table http_histories
 (
-    id                        char(36)     not null
+    id                  char(36) not null
         primary key,
-    path_url                  varchar(255) not null,
-    request_content_type      varchar(255) not null,
-    request_headers           jsonb        not null,
-    request_body              jsonb        not null,
-    response_headers          jsonb        not null,
-    response_body             jsonb        not null,
-    response_http_status_code smallint     not null,
-    created_at                numeric      not null,
-    updated_at                numeric
+    request_path_url    varchar(255),
+    request_method      varchar(20),
+    request_header      jsonb,
+    request_body        jsonb,
+    request_query_param jsonb,
+    created_at          numeric  not null
 );

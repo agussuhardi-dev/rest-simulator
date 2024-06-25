@@ -20,19 +20,40 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("http_request")
-public class HttpRequest implements Serializable {
+@Table("http")
+public class Http implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
     private String id;
-    private String pathUrl;
-    private String method;
-    private String queryParam;
-    private String requestHeader;
+
+    @Column("request_path_url")
+    private String requestPathUrl;
+
+    @Column("request_method")
+    private String requestMethod;
+
+    @Column("request_query_param")
+    private String requestQueryParamJSONB;
+
+    @Column("request_header")
+    private String requestHeaderJSONB;
+
     @Column("request_body")
-    private String requestBody;
-    private boolean enabled;
+    private String requestBodyJSONB;
+
+
+    @Column("response_header")
+    private String responseHeader;
+
+    @Column("response_body")
+    private String responseBody;
+
+    @Column("response_http_status_code")
+    private int responseHttpStatusCode;
+
+    @Column("response_time_in_millis")
+    private Long responseTimeInMillis;
 
 }
