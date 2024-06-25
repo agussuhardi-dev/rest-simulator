@@ -7,44 +7,34 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name = "http_histories")
+@Table(name = "http_history")
 public class HttpHistories implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "id", nullable = false)
-    private String id;
+    private int id;
 
-    @Column(name = "path_url", nullable = false)
-    private String pathUrl;
+    @Column(name = "request_path_url")
+    private String requestPathUrl;
 
-    @Column(name = "request_content_type", nullable = false)
-    private String requestContentType;
+    @Column(name = "request_method")
+    private String requestMethod;
 
-    @Column(name = "request_headers", nullable = false)
-    private String requestHeaders;
+    @Column(name = "request_query_param")
+    private String requestQueryParam;
 
-    @Column(name = "request_body", nullable = false)
+    @Column(name = "request_header")
+    private String requestHeader;
+
+    @Column(name = "request_body")
     private String requestBody;
 
-    @Column(name = "response_headers", nullable = false)
-    private String responseHeaders;
-
-    @Column(name = "response_body", nullable = false)
-    private String responseBody;
-
-    @Column(name = "response_http_status_code", nullable = false)
-    private Integer responseHttpStatusCode;
-
     @Column(name = "created_at", nullable = false)
-    private BigDecimal createdAt;
-
-    @Column(name = "updated_at")
-    private BigDecimal updatedAt;
+    private Long createdAt;
 
 }

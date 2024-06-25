@@ -32,8 +32,8 @@ public class MvcConfig implements WebMvcConfigurer, ApplicationContextAware {
         registry.addViewController("/http/histories").setViewName("http_history/list");
         registry.addViewController("/").setViewName("http_history/list");
 
-        registry.addViewController("/http").setViewName("http_request/list");
-        registry.addViewController("/http/form").setViewName("http_request/form");
+        registry.addViewController("/http").setViewName("http/list");
+        registry.addViewController("/http/form").setViewName("http/form");
     }
 
     @Override

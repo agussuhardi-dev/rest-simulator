@@ -5,30 +5,23 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Data
 public class HttpHistoriesDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private String id;
+    private int id;
 
-    private String pathUrl;
+    private String requestPathUrl;
 
-    private String requestContentType;
+    private String requestMethod;
 
-    private String requestHeaders;
+    private String requestQueryParam;
+
+    private String requestHeader;
 
     private String requestBody;
 
-    private String responseHeaders;
-
-    private String responseBody;
-
-    private Integer responseHttpStatusCode;
-
-    private BigDecimal createdAt;
-
-    private BigDecimal updatedAt;
+    private Long createdAt;
 
 }
