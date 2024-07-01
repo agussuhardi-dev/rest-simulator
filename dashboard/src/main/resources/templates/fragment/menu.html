@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="sidebarMenu" th:fragment="menu(active_menu)">
+    <div class="position-sticky pt-3 sidebar-sticky">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <!--                <a th:classappend="${active_menu=='contracts'} ? 'active' : ''"-->
+                <a class="nav-link" href="/http/histories"
+                   th:classappend="${active_menu=='/http/histories'} ? 'active' : ''">
+                    <span class="align-text-bottom" data-feather="activity"></span>
+                    Histories
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/http"
+                   th:classappend="${active_menu=='/http'} ? 'active' : ''">
+                    <span class="align-text-bottom" data-feather="git-pull-request"></span>
+                    Http
+                </a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+</html>

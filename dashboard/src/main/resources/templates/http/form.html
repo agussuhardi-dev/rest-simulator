@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{fragment/head::head}"></div>
+
+<body>
+<div th:replace="~{fragment/body::header}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{fragment/menu::menu('/http')}"></div>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+            <div class="container bg-body rounded shadow-sm">
+                <form class="row" id="form" onsubmit="return false">
+                    <div class="col">
+                        <div class="my-3 p-3">
+                            <h4 class="border-bottom mb-9">Request</h4>
+                            <div class="form row g-3">
+                                <input type="hidden" id="id" name="id">
+                                <div class="col-md-2">
+                                    <label for="requestMethod" class="form-label">Method</label>
+                                    <select aria-label="Default select example" class="form-select" id="requestMethod"
+                                            name="requestMethod">
+                                        <option th:each="method : ${T(org.springframework.http.HttpMethod).values()}"
+                                                th:text="${method.name()}" th:value="${method.name()}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-10">
+                                    <label for="requestPathUrl" class="form-label">Path Url</label>
+                                    <input type="text" class="form-control" id="requestPathUrl" name="requestPathUrl">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="requestQueryParamJSONB">Query Param</label>
+                                    <textarea class="form-control" id="requestQueryParamJSONB"
+                                              name="requestQueryParamJSONB" required
+                                              rows="3"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="requestHeaderJSONB">Header</label>
+                                    <textarea class="form-control" id="requestHeaderJSONB" name="requestHeaderJSONB"
+                                              required
+                                              rows="3"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="requestBodyJSONB">Body</label>
+                                    <textarea class="form-control" id="requestBodyJSONB" name="requestBodyJSONB"
+                                              required
+                                              rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="my-3 p-3">
+                            <h4 class="border-bottom mb-9">Response</h4>
+                            <div class="form row g-3">
+
+                                <div class="col-md-3">
+                                    <label for="httpStatusCode" class="form-label">Status Code</label>
+                                    <input type="number" class="form-control" id="httpStatusCode" name="httpStatusCode">
+                                </div>
+
+                                <div class="col-md-5">
+                                    <label for="responseTimeInMillis" class="form-label">Response time in millis</label>
+                                    <input type="number" class="form-control" id="responseTimeInMillis"
+                                           name="responseTimeInMillis">
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label" for="header">Header</label>
+                                    <textarea class="form-control" id="header" name="header" required
+                                              rows="3"></textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label" for="body">Body</label>
+                                    <textarea class="form-control" id="body" name="body" required
+                                              rows="3"></textarea>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container my-3">
+                        <div class="row">
+                            <div class="col text-center">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+
+        </main>
+    </div>
+</div>
+
+
+<div th:replace="~{fragment/body::js}"></div>
+<script th:inline="javascript">
+
+    let apiUrl = '/web/api/v1/http'
+    let webUrl = '/http/form'
+
+    function getId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('id')
+    }
+
+    $(document).ready(function () {
+        if (getId() === null) return;
+
+        $.ajax({
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            url: apiUrl + '/' + getId(),
+            type: 'GET',
+            success: function (response) {
+                for (const [key, value] of Object.entries(response.data)) {
+
+                    if (key === 'response') {
+                        for (const [keyResponse, valueResponse] of Object.entries(value)) {
+                            let input2 = $('#' + keyResponse);
+                            input2.val(valueResponse);
+
+                            if (keyResponse === 'header') $('#responseHeader').val(JSON.stringify(JSON.parse(valueResponse), undefined, 2));
+                            if (keyResponse === 'body') $('#responseBody').val(JSON.stringify(JSON.parse(valueResponse), undefined, 2));
+
+                        }
+                    }
+
+                    let input = $('#' + key);
+                    input.val(value);
+                    if (key === 'header' || key === 'queryParam' || key === 'body') {
+                        input.val(JSON.stringify(JSON.parse(value), undefined, 2));
+                    }
+
+                }
+            }
+        })
+    });
+
+
+    $(document).on('submit', '#form', function (e) {
+        let obj = JSON.parse(serialize_form(this));
+
+        let response = {};
+        for (const [key, value] of Object.entries(obj)) {
+            if (key === 'body' || key === 'header' || key === 'responseTimeInMillis' || key === 'httpStatusCode') {
+                response[key] = value
+                delete obj[key]
+            }
+        }
+
+        obj['response'] = response
+
+        console.log(obj)
+        // return
+
+        $.ajax({
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            type: 'POST',
+            url: apiUrl,
+            dataType: 'json',
+            data: JSON.stringify(obj),
+            success: function (response) {
+                window.location.href = webUrl+'?id=' + response.data.id
+            },
+            error: function (request, status, error) {
+                console.log(resquest.responseText)
+                // alert(JSON.parse(request.responseText).message);
+            }
+        });
+    })
+
+</script>
+
+</body>
+</html>

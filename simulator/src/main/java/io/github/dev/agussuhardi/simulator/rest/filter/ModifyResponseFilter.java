@@ -2,9 +2,9 @@ package io.github.dev.agussuhardi.simulator.rest.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.dev.agussuhardi.simulator.rest.RestApplication;
-import io.github.dev.agussuhardi.simulator.rest.repository.HttpRequestRepository;
-import io.github.dev.agussuhardi.simulator.rest.repository.HttpResponseRepository;
+import io.github.dev.agussuhardi.simulator.rest.entity.HttpHistory;
+import io.github.dev.agussuhardi.simulator.rest.repository.HttpHistoryRepository;
+import io.github.dev.agussuhardi.simulator.rest.repository.HttpRepository;
 import io.github.dev.agussuhardi.simulator.rest.util.ObjectMapperUtil;
 import io.micrometer.common.lang.NonNullApi;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +20,15 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static io.github.dev.agussuhardi.simulator.rest.util.ObjectMapperUtil.getJsonNode;
 
 /**
  * @author agussuhardi
@@ -38,9 +41,8 @@ import java.util.stream.Collectors;
 @NonNullApi
 public class ModifyResponseFilter implements WebFilter {
 
-    private final HttpRequestRepository httpRequestRepository;
-    private final RestApplication restApplication;
-    private final HttpResponseRepository httpResponseRepository;
+    private final HttpRepository httpRepository;
+    private final HttpHistoryRepository httpHistoryRepository;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -53,12 +55,22 @@ public class ModifyResponseFilter implements WebFilter {
                     dataBuffer.read(bytes);
                     String body = new String(bytes, StandardCharsets.UTF_8);
 
+
+                    var history = new HttpHistory();
+                    history.setRequestPathUrl(request.getPath().toString());
+                    history.setRequestMethod(request.getMethod().name());
+                    history.setRequestQueryParamJSONB(ObjectMapperUtil.toJson(request.getQueryParams()));
+                    history.setRequestHeaderJSONB(ObjectMapperUtil.toJson(request.getHeaders()));
+                    history.setRequestBodyJSONB(body);
+                    history.setCreatedAt(System.currentTimeMillis());
+                    httpHistoryRepository.save(history).subscribe();
+
+
                     var httpPathUrl = request.getPath().toString();
                     var httpMethod = request.getMethod().name();
                     MultiValueMap<String, String> httpQueryParams = request.getQueryParams();
                     MultiValueMap<String, String> httpHeaders = request.getHeaders();
-                    JsonNode httpBody = ObjectMapperUtil.getJsonNode(body);
-
+                    JsonNode httpBody = getJsonNode(body);
 
                     System.out.println("========================");
                     log.warn("path=>{}", httpPathUrl);
@@ -68,10 +80,16 @@ public class ModifyResponseFilter implements WebFilter {
                     log.warn("body=>{}", body);
                     System.out.println("========================");
 
-                    var queryParams = httpRequestRepository.findByPathUrlAndMethodAndEnabled(request.getPath().toString(), request.getMethod().name(), true)
+
+                    var queryParams = httpRepository.findByRequestMethodAndRequestPathUrl(httpMethod, httpPathUrl)
                             .collect(Collectors.toList())
                             .flatMapIterable(list -> list.stream().filter(entity -> {
-                                        return !getQueryParams(entity.getQueryParam()).keySet()
+                                        log.info("<<FILTER QUERY PARAMS>>");
+                                        var queryParamEntity = getQueryParams(entity.getRequestQueryParamJSONB());
+                                        if (queryParamEntity.isEmpty()) {
+                                            return true;
+                                        }
+                                        return !queryParamEntity.keySet()
                                                 .stream()
                                                 .filter(httpQueryParams::containsKey)
                                                 .collect(Collectors.toMap(Function.identity(), httpQueryParams::get))
@@ -81,32 +99,49 @@ public class ModifyResponseFilter implements WebFilter {
 
                     var headers = queryParams
                             .filter(entity -> {
-                                return !getQueryParams(entity.getRequestHeader())
+                                log.info("<<FILTER HEADERS>>");
+                                var httpHeadersEntity = getQueryParams(entity.getRequestHeaderJSONB());
+                                if (httpHeadersEntity.isEmpty()) {
+                                    return true;
+                                }
+                                return !httpHeadersEntity
                                         .entrySet().stream().filter(key -> httpHeaders.containsKey(key.getKey()))
                                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).isEmpty();
                             });
 
-                    var bodyFilter = headers.filter(entity -> ObjectMapperUtil.getJsonNode(entity.getRequestBody()).equals(httpBody));
+                    var bodyFilter = headers.filter(entity -> {
+                        log.info("<<FILTER QUERY BODY>>");
+                        var bodyEntity = getJsonNode(entity.getRequestBodyJSONB());
+                        if (bodyEntity.isEmpty()) {
+                            return true;
+                        }
+                        return bodyEntity.equals(httpBody);
+                    });
 
-                    var modifyResponse = bodyFilter.flatMap(requestEntity -> {
-                        log.info("Request ID: {}", requestEntity.getId());
-                        return httpResponseRepository.findByHttpRequestIdAndEnabled(requestEntity.getId(), true)
-                                .flatMap(responseEntity -> {
-                                    if (responseEntity.getResponseTimeInMillis() != null) {
-                                        try {
-                                            TimeUnit.MILLISECONDS.sleep(responseEntity.getResponseTimeInMillis());
-                                        } catch (InterruptedException ie) {
-                                            log.error("InterruptedException: ", ie);
-                                            Thread.currentThread().interrupt();
-                                        }
-                                    }
-                                    log.info("Response ID: {}", responseEntity.getId());
-                                    exchange.getResponse().setStatusCode(HttpStatus.valueOf(responseEntity.getHttpStatusCode()));
-                                    exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                                    return exchange.getResponse().writeWith(Mono.fromSupplier(() -> {
-                                        return exchange.getResponse().bufferFactory().wrap(responseEntity.getBody().getBytes(StandardCharsets.UTF_8));
-                                    }));
-                                });
+                    var modifyResponse = bodyFilter.flatMap(responseEntity -> {
+                        log.info("<<CREATE RESPONSE BODY>>");
+                        if (responseEntity.getResponseTimeInMillis() != null) {
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(responseEntity.getResponseTimeInMillis());
+                            } catch (InterruptedException ie) {
+                                log.error("InterruptedException: ", ie);
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+                        log.info("Response ID: {}", responseEntity.getId());
+
+
+//                        response.getHeaders().set("Content-Type",MediaType.APPLICATION_JSON_VALUE););
+
+                        var response = exchange.getResponse();
+                        response.beforeCommit(() -> {
+                            response.setStatusCode(HttpStatus.valueOf(responseEntity.getResponseHttpStatusCode()));
+                            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                            return Mono.empty();
+                        });
+                        return response.writeWith(Mono.fromSupplier(() -> {
+                            return response.bufferFactory().wrap(responseEntity.getResponseBody().getBytes(StandardCharsets.UTF_8));
+                        }));
                     });
                     return modifyResponse.then();
                 });
